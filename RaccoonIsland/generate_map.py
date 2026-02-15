@@ -176,8 +176,6 @@ TENT_PADS = [
     {"x": 50, "y": 42, "w": 3, "h": 2},  # Tent12 Tile(51,43) — E, below path
 ]
 
-# Well at center-north of plaza
-WELL = {"x": 42, "y": 37, "w": 2, "h": 2}
 
 
 def get_building_tiles():
@@ -207,17 +205,6 @@ def get_building_tiles():
             for dx in range(pad["w"]):
                 mx, my = pad["x"] + dx, pad["y"] + dy
                 building_cells[(mx, my)] = {"back": COBBLE, "buildings": 0, "front": 0}
-
-    # Well
-    wx, wy = WELL["x"], WELL["y"]
-    for dy in range(WELL["h"]):
-        for dx in range(WELL["w"]):
-            mx, my = wx + dx, wy + dy
-            building_cells[(mx, my)] = {
-                "back": COBBLE,
-                "buildings": COBBLE,  # stone well blocks movement
-                "front": 0,
-            }
 
     return building_cells
 
@@ -368,5 +355,5 @@ if __name__ == "__main__":
     print(f"Zone stats: {counts}")
 
     building_count = sum(1 for b in BUILDINGS for dy in range(b["h"]) for dx in range(b["w"]))
-    print(f"Building tiles: {building_count + WELL['w'] * WELL['h']}")
+    print(f"Building tiles: {building_count}")
     print("Forest trees: spawned as TerrainFeature objects in ModEntry.cs")

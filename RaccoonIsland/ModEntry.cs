@@ -127,10 +127,10 @@ namespace RaccoonIsland
             }
 
             // Raccoon statue portal at end of dock
-            island.largeTerrainFeatures.Add(new RaccoonStatue(new Vector2(40, 70), "Farm", 67, 19));
+            island.largeTerrainFeatures.Add(new RaccoonStatue(new Vector2(40, 72), "Farm", 67, 19));
             if (!HasWarpTo(island, "Farm"))
             {
-                island.warps.Add(new Warp(40, 70, "Farm", 67, 19, false));
+                island.warps.Add(new Warp(40, 72, "Farm", 67, 19, false));
             }
 
             // Island warps (only add once)
@@ -238,68 +238,52 @@ namespace RaccoonIsland
         {
             try
             {
-                Map map = location.map;
-                if (map == null)
-                    return;
-
-                TileSheet hutSheet = new TileSheet(map,
-                    Helper.ModContent.GetInternalAssetName("assets/junimo_hut_tiles.png").Name,
-                    new xTile.Dimensions.Size(3, 4),
-                    new xTile.Dimensions.Size(16, 16));
-                hutSheet.Id = "junimo_hut";
-                map.AddTileSheet(hutSheet);
-                map.LoadTileSheets(Game1.mapDisplayDevice);
-
-                Layer buildings = map.GetLayer("Buildings");
-                if (buildings == null)
-                    return;
-
-                // Place 3x4 Junimo Hut in top-right corner (cols 8-10, rows 1-4)
-                for (int dy = 0; dy < 4; dy++)
+                // Place Junimo Hut furniture in top-right corner
+                string hutId = null;
+                foreach (var kvp in Game1.content.Load<Dictionary<string, string>>("Data\\Furniture"))
                 {
-                    for (int dx = 0; dx < 3; dx++)
+                    if (kvp.Value.Contains("Junimo Hut") || kvp.Key.Contains("JunimoHut") || kvp.Key.Contains("Junimo_Hut"))
                     {
-                        buildings.Tiles[8 + dx, 1 + dy] = new StaticTile(
-                            buildings, hutSheet, BlendMode.Alpha, dy * 3 + dx);
+                        hutId = kvp.Key;
+                        Monitor.Log($"Found Junimo Hut furniture: key={kvp.Key}, value={kvp.Value}", LogLevel.Trace);
+                        break;
                     }
                 }
-
-                // Dark Cat Tree tilesheet (2x3 tiles)
-                TileSheet catSheet = new TileSheet(map,
-                    Helper.ModContent.GetInternalAssetName("assets/dark_cat_tree_tiles.png").Name,
-                    new xTile.Dimensions.Size(2, 3),
-                    new xTile.Dimensions.Size(16, 16));
-                catSheet.Id = "dark_cat_tree";
-                map.AddTileSheet(catSheet);
-                map.LoadTileSheets(Game1.mapDisplayDevice);
-
-                // Place 2x3 Dark Cat Tree in left side (cols 1-2, rows 7-9)
-                for (int dy = 0; dy < 3; dy++)
+                if (hutId != null)
                 {
-                    for (int dx = 0; dx < 2; dx++)
-                    {
-                        buildings.Tiles[1 + dx, 7 + dy] = new StaticTile(
-                            buildings, catSheet, BlendMode.Alpha, dy * 2 + dx);
-                    }
+                    Furniture hut = new Furniture(hutId, new Vector2(8, 3));
+                    location.furniture.Add(hut);
+                    Monitor.Log($"Placed Junimo Hut ({hutId}) in {location.Name}", LogLevel.Trace);
+                }
+                else
+                {
+                    Monitor.Log("Could not find Junimo Hut in furniture data", LogLevel.Warn);
                 }
 
-                // Long Elixir Table tilesheet (2x3 tiles)
-                TileSheet tableSheet = new TileSheet(map,
-                    Helper.ModContent.GetInternalAssetName("assets/long_elixir_table_tiles.png").Name,
-                    new xTile.Dimensions.Size(2, 3),
-                    new xTile.Dimensions.Size(16, 16));
-                tableSheet.Id = "long_elixir_table";
-                map.AddTileSheet(tableSheet);
-                map.LoadTileSheets(Game1.mapDisplayDevice);
+                // Place Dark Cat Tree furniture
+                Furniture catTree = new Furniture("DarkCatTree", new Vector2(1, 9));
+                location.furniture.Add(catTree);
 
-                // Place 2x3 Long Elixir Table in top-left corner (cols 1-2, rows 1-3)
-                for (int dy = 0; dy < 3; dy++)
+                // Place Long Elixir Table furniture in top-left corner
+                string tableId = null;
+                foreach (var kvp in Game1.content.Load<Dictionary<string, string>>("Data\\Furniture"))
                 {
-                    for (int dx = 0; dx < 2; dx++)
+                    if (kvp.Value.Contains("Long Elixir Table") || kvp.Key.Contains("LongElixirTable") || kvp.Key.Contains("Long_Elixir_Table"))
                     {
-                        buildings.Tiles[1 + dx, 1 + dy] = new StaticTile(
-                            buildings, tableSheet, BlendMode.Alpha, dy * 2 + dx);
+                        tableId = kvp.Key;
+                        Monitor.Log($"Found Long Elixir Table: key={kvp.Key}, value={kvp.Value}", LogLevel.Trace);
+                        break;
                     }
+                }
+                if (tableId != null)
+                {
+                    Furniture table = new Furniture(tableId, new Vector2(1, 4));
+                    location.furniture.Add(table);
+                    Monitor.Log($"Placed Long Elixir Table ({tableId}) in {location.Name}", LogLevel.Trace);
+                }
+                else
+                {
+                    Monitor.Log("Could not find Long Elixir Table in furniture data", LogLevel.Warn);
                 }
 
                 Monitor.Log($"Placed Junimo Hut, Dark Cat Tree, and Long Elixir Table in {location.Name}", LogLevel.Trace);
@@ -574,8 +558,16 @@ namespace RaccoonIsland
             if (Game1.currentLocation.Name == "Beach" && _statueTexture != null)
                 DrawStatue(e.SpriteBatch, tileX: 40, tileY: 20);
 
-            if (Game1.currentLocation.Name == LocationName && _raccoonGodTexture != null)
-                DrawRaccoonGod(e.SpriteBatch, tileX: 40, tileY: 40);
+            if (Game1.currentLocation.Name == "Farm" && _statueTexture != null)
+                DrawStatue(e.SpriteBatch, tileX: 67, tileY: 20);
+
+            if (Game1.currentLocation.Name == LocationName)
+            {
+                if (_raccoonGodTexture != null)
+                    DrawRaccoonGod(e.SpriteBatch, tileX: 40, tileY: 40);
+                if (_statueTexture != null)
+                    DrawStatue(e.SpriteBatch, tileX: 40, tileY: 72);
+            }
         }
 
         private void DrawStatue(SpriteBatch spriteBatch, int tileX, int tileY)
