@@ -1,0 +1,10 @@
+{
+  "Name": "Raccoon Island",
+  "Author": "TJ",
+  "Version": "1.0.0",
+  "Description": "Adds Raccoon Island as a custom location in Stardew Valley.",
+  "UniqueID": "jd.RaccoonIsland",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [],
+  "EntryDll": "RaccoonIsland.dll"
+}
